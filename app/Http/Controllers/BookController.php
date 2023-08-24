@@ -16,7 +16,18 @@ class BookController extends Controller
 
     public function show($id)
     {
-        $book = Book::find($id);
+        $userId = auth()->guard('api')->user()->id;
+
+        $book = Book::where('id', $id)->where('ownerId', $userId)->first();
+
+        if (!$book) {
+            return ResponseFormatter::error(
+                null,
+                'Anda tidak memiliki buku ini',
+                404
+            );
+        }
+
         return  ResponseFormatter::success($book, 'Data buku berhasil diambil');
     }
 
@@ -67,7 +78,18 @@ class BookController extends Controller
 
     public function destroy($id)
     {
-        $books = Book::find($id);
+        $userId = auth()->guard('api')->user()->id;
+
+        $books = Book::where('id', $id)->where('ownerId', $userId)->first();
+
+        if (!$books) {
+            return ResponseFormatter::error(
+                null,
+                'Anda tidak memiliki buku ini',
+                404
+            );
+        }
+
         $books->delete();
 
         return ResponseFormatter::success($books, 'Data buku berhasil dihapus');
