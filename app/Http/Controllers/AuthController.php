@@ -133,26 +133,24 @@ class AuthController extends Controller
 
             $user = new User();
 
-            $userOldAvatar = User::where('_id', $userId)->first()->avatar_url;
+            $userOldAvatar = User::where('_id', $userId)->first()->avatar;
 
             if ($userOldAvatar) {
-                Storage::delete('public/' . $userOldAvatar);
+                Storage::delete('public/avatar/' . $userOldAvatar);
             }
 
-            $avatar = $request->file('avatar')->store('avatars', 'public');
+            $avatar = $request->file('avatar')->store('avatar', 'public');
 
             $user = $user->find($userId);
 
-            $user->avatar_url = $avatar;
+            $user->avatar_url = env('APP_URL') . '/storage/' . $avatar;
             $user->updated_at = now();
             $user->avatar = $request->file('avatar')->hashName();
 
 
             $user->save();
 
-            return ResponseFormatter::success([
-                'avatar' => $avatar
-            ], 'Avatar Updated');
+            return ResponseFormatter::success(null, 'Avatar Updated');
         } catch (\Throwable $error) {
             return ResponseFormatter::error(null, $error->getMessage(), 500);
         }
