@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -100,8 +101,60 @@ class AuthController extends Controller
 
     public function userProfile(Request $request)
     {
-
         $request->user()->makeHidden(['password']);
         return ResponseFormatter::success($request->user(), 'Data user berhasil diambil');
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        try {
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+                ],
+                [
+                    'avatar.required' => 'Please fill your avatar',
+                    'avatar.image' => 'Avatar must be an image',
+                    'avatar.mimes' => 'Avatar must be jpeg, png, or jpg',
+                    'avatar.max' => 'Avatar max size is 2MB'
+                ]
+            );
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error(
+                    null,
+                    $validator->errors(),
+                    400
+                );
+            }
+
+            $userId = auth()->guard('api')->user()->id;
+
+            $user = new User();
+
+            $userOldAvatar = User::where('_id', $userId)->first()->avatar_url;
+
+            if ($userOldAvatar) {
+                Storage::delete('public/' . $userOldAvatar);
+            }
+
+            $avatar = $request->file('avatar')->store('avatars', 'public');
+
+            $user = $user->find($userId);
+
+            $user->avatar_url = $avatar;
+            $user->updated_at = now();
+            $user->avatar = $request->file('avatar')->hashName();
+
+
+            $user->save();
+
+            return ResponseFormatter::success([
+                'avatar' => $avatar
+            ], 'Avatar Updated');
+        } catch (\Throwable $error) {
+            return ResponseFormatter::error(null, $error->getMessage(), 500);
+        }
     }
 }

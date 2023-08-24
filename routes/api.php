@@ -26,6 +26,11 @@ Route::post(
     [AuthController::class, 'register']
 );
 
+Route::post(
+    '/avatar',
+    [AuthController::class, 'updateAvatar']
+);
+
 Route::get(
     '/me',
     [AuthController::class, 'userProfile']
