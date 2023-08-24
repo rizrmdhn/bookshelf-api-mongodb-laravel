@@ -19,7 +19,7 @@ class BookController extends Controller
     {
         $userId = auth()->guard('api')->user()->id;
 
-        $book = Book::where('id', $id)->where('ownerId', $userId)->first();
+        $book = Book::where('_id', $id)->where('ownerId', $userId)->first();
 
         if (!$book) {
             return ResponseFormatter::error(
@@ -94,7 +94,7 @@ class BookController extends Controller
     {
         $userId = auth()->guard('api')->user()->id;
 
-        $books = Book::where('id', $id)->where('ownerId', $userId)->first();
+        $books = Book::where('_id', $id)->where('ownerId', $userId)->first();
 
         if (!$books) {
             return ResponseFormatter::error(
