@@ -6,6 +6,7 @@ use App\Helpers\ResponseFormatter;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Jenssegers\Mongodb\Query\Builder;
 
 class BookController extends Controller
 {
@@ -33,7 +34,20 @@ class BookController extends Controller
 
     public function all()
     {
-        $books = Book::all();
+        $params = request()->input('search');
+
+        if ($params) {
+            $books = Book::where('title', 'like', '%' . $params . '%')
+                ->orWhere('author', 'like', '%' . $params . '%')
+                ->orWhere('description', 'like', '%' . $params . '%')
+                ->orWhere('publisher', 'like', '%' . $params . '%')
+                ->get();
+        } else {
+            $books = new Book();
+
+            $books = $books->paginate(10);
+        }
+
         return ResponseFormatter::success($books, 'Data buku berhasil diambil');
     }
 
