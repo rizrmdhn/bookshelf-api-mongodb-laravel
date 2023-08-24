@@ -97,4 +97,11 @@ class AuthController extends Controller
             'message' => 'Logged Out'
         ], 'Logout Success');
     }
+
+    public function userProfile(Request $request)
+    {
+
+        $request->user()->makeHidden(['password']);
+        return ResponseFormatter::success($request->user(), 'Data user berhasil diambil');
+    }
 }

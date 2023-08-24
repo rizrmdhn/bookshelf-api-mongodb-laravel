@@ -26,6 +26,11 @@ Route::post(
     [AuthController::class, 'register']
 );
 
+Route::get(
+    '/me',
+    [AuthController::class, 'userProfile']
+);
+
 Route::post(
     '/logout',
     [AuthController::class, 'logout']
