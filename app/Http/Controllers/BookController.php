@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseFormatter;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+    }
+
     public function show($id)
     {
         $book = Book::find($id);
@@ -22,11 +28,37 @@ class BookController extends Controller
 
     public function store(Request $request)
     {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'title' => 'required|string',
+                'author' => 'required|string',
+                'description' => 'required|string',
+                'publisher' => 'required|string'
+            ],
+            [
+                'title.required' => 'Please fill your title',
+                'author.required' => 'Please fill your author',
+                'description.required' => 'Please fill your description',
+                'publisher.required' => 'Please fill your publisher'
+            ],
+        );
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error(
+                null,
+                $validator->errors(),
+                400
+            );
+        }
+
         $books = new Book();
 
         $books->title = $request->title;
         $books->author = $request->author;
         $books->description = $request->description;
+        $books->publisher = $request->publisher;
+        $books->ownerId = auth()->guard('api')->user()->id;
 
         $books->save();
 
