@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\ImagesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -56,6 +55,12 @@ Route::post(
     '/books',
     [BookController::class, 'store']
 );
+
+Route::post(
+    '/books/{id}',
+    [BookController::class, 'updateBook']
+);
+
 Route::delete(
     '/books/{id}',
     [BookController::class, 'destroy']

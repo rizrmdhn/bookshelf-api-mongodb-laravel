@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\ResponseFormatter;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -37,5 +39,14 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        return ResponseFormatter::error(
+            null,
+            'Unauthenticated',
+            401
+        );
     }
 }
